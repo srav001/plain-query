@@ -135,14 +135,14 @@ console.log(userClient.error);
 
 ### Adapters
 
-#### MemoryAdapter
+#### StorageAdapter
 
-An in-memory cache implementation.
+A persistent cache implementation using IndexedDB via [keyval-db](https://www.npmjs.com/package/keyval-db).
 
 ```typescript
-import { MemoryAdapter } from 'plain-query';
+import { StorageAdapter } from 'plain-query';
 
-const cache = new MemoryAdapter();
+const cache = new StorageAdapter();
 
 // Set a value
 cache.set('key1', { data: 'value1' });
@@ -154,14 +154,14 @@ const value = await cache.get('key1');
 cache.del('key1');
 ```
 
-#### StorageAdapter
+#### MemoryAdapter
 
-A persistent cache implementation using IndexedDB via [keyval-db](https://www.npmjs.com/package/keyval-db).
+An in-memory cache implementation.
 
 ```typescript
-import { StorageAdapter } from 'plain-query';
+import { MemoryAdapter } from 'plain-query';
 
-const cache = new StorageAdapter();
+const cache = new MemoryAdapter();
 
 // Set a value
 cache.set('key1', { data: 'value1' });
