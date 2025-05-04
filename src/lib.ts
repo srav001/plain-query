@@ -122,6 +122,7 @@ export class QueryClient<T, Args extends any[] = []> {
 		}
 	}
 
+	// @ts-expect-error WIP
 	private async fetchData(type: 'initial' | 'refresh' | 'refetch' | 'normal', ...args: Args): Promise<T | undefined> {
 		// Prevent multiple simultaneous fetches
 		if (this.l) {

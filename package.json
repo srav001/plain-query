@@ -23,6 +23,7 @@
 	},
 	"homepage": "https://github.com/srav001/plain-query#readme",
 	"devDependencies": {
+		"@types/react": "^19.1.2",
 		"@vue/reactivity": "^3.5.13",
 		"prettier": "^3.5.3",
 		"prettier-plugin-organize-imports": "^4.1.0",
