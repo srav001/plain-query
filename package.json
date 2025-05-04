@@ -1,0 +1,30 @@
+{
+	"name": "plain-query",
+	"version": "0.0.0",
+	"description": "A basic, framework agnostic querying library.",
+	"files": [
+		"dist"
+	],
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"scripts": {
+		"build": "npx tsc --build",
+		"pub": "pnpm build && npm publish --access public",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/srav001/plain-query.git"
+	},
+	"author": "Sravan Suresh",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/srav001/plain-query/issues"
+	},
+	"homepage": "https://github.com/srav001/plain-query#readme",
+	"devDependencies": {
+		"prettier": "^3.5.3",
+		"prettier-plugin-organize-imports": "^4.1.0",
+		"typescript": "^5.8.2"
+	}
+}
