@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const METRIC = 60000; // 1 minute in milliseconds
 export function getCacheKey(key) {
     return key.join(':');
@@ -51,9 +50,7 @@ export class QueryClient {
             evntListners.set(this.currentKey, listener);
         }
     }
-    // @ts-expect-error WIP
     async fetchData(type, ...args) {
-        // Prevent multiple simultaneous fetches
         if (this.l) {
             return;
         }
@@ -90,6 +87,7 @@ export class QueryClient {
         catch (err) {
             this.e = err instanceof Error ? err : new Error(String(err));
             this.on.error?.(this.e);
+            return undefined;
         }
         finally {
             this.l = false;
@@ -115,9 +113,10 @@ export class QueryClient {
             onReconnect: options.refetch?.onReconnect ?? true
         };
         this.initial = {
+            value: options.initial?.value ?? undefined,
             cacheFirst: options.initial?.cacheFirst ?? true,
-            manualFetch: options.initial?.manualFetch ?? false,
-            alwaysFetch: options.initial?.alwaysFetch ?? false
+            alwaysFetch: options.initial?.alwaysFetch ?? true,
+            manualFetch: options.initial?.manualFetch ?? false
         };
         this.on = {
             loading: options.on?.loading ?? (() => { }),
@@ -125,6 +124,9 @@ export class QueryClient {
             success: options.on?.success ?? (() => { })
         };
         this.currentKey = getCacheKey(options.keys);
+        if (this.initial.value) {
+            this.d = this.initial.value;
+        }
         if (this.initial.cacheFirst === true) {
             this.pending = true;
             this.setFromCache().then((v) => {

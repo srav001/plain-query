@@ -1,6 +1,6 @@
 {
 	"name": "plain-query",
-	"version": "1.0.0",
+	"version": "1.1.0",
 	"description": "A basic, framework agnostic querying library.",
 	"files": [
 		"dist"
@@ -25,12 +25,12 @@
 	"devDependencies": {
 		"@types/react": "^19.1.2",
 		"@vue/reactivity": "^3.5.13",
-		"prettier": "^3.5.3",
-		"prettier-plugin-organize-imports": "^4.1.0",
-		"svelte": "^5.28.2",
-		"typescript": "^5.8.2"
+		"prettier": "^3.6.2",
+		"prettier-plugin-organize-imports": "^4.3.0",
+		"svelte": "^5.38.0",
+		"typescript": "^5.9.2"
 	},
-	"dependencies": {
+	"peerDependencies": {
 		"keyval-db": "^1.0.0"
 	}
 }

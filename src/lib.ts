@@ -1,9 +1,12 @@
-import { CacheAdapter } from './adapters';
-
 export type NotUndefined<T> = T extends undefined ? never : T;
 
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const METRIC = 60_000; // 1 minute in milliseconds
+
+export type CacheAdapter = {
+	get: (key: string) => Promise<any | undefined>;
+	set: (key: string, value: any) => void;
+	del: (key: string) => void;
+};
 
 export function getCacheKey(key: Array<string>): string {
 	return key.join(':');
@@ -14,8 +17,10 @@ export interface QueryOptions<T, Args extends any[] = []> {
 	fn: (...args: Args) => Promise<T>;
 
 	cacheAdapter: CacheAdapter;
+	/* Time in minutes to consider data stale */
 	staleTime?: number;
-	cacheTime?: number; // Time to keep data in cache even if unused
+	/* Time in minutes to keep data in cache */
+	cacheTime?: number;
 
 	on: {
 		loading: (isLoading: boolean) => void;
@@ -29,6 +34,7 @@ export interface QueryOptions<T, Args extends any[] = []> {
 	};
 
 	initial?: {
+		value?: T | undefined;
 		cacheFirst?: boolean;
 		manualFetch?: boolean;
 		alwaysFetch?: boolean;
@@ -122,9 +128,7 @@ export class QueryClient<T, Args extends any[] = []> {
 		}
 	}
 
-	// @ts-expect-error WIP
 	private async fetchData(type: 'initial' | 'refresh' | 'refetch' | 'normal', ...args: Args): Promise<T | undefined> {
-		// Prevent multiple simultaneous fetches
 		if (this.l) {
 			return;
 		}
@@ -157,6 +161,7 @@ export class QueryClient<T, Args extends any[] = []> {
 
 			this.lastArgs = args;
 			const fetchedData = await this.options.fn(...args);
+
 			this.onData(fetchedData);
 			this.options.cacheAdapter.set(this.currentKey, add_ttl_for_cache(fetchedData, this.options.cacheTime));
 
@@ -166,6 +171,7 @@ export class QueryClient<T, Args extends any[] = []> {
 		} catch (err) {
 			this.e = err instanceof Error ? err : new Error(String(err));
 			this.on.error?.(this.e);
+			return undefined;
 		} finally {
 			this.l = false;
 			this.on.loading(false);
@@ -183,10 +189,12 @@ export class QueryClient<T, Args extends any[] = []> {
 			onReconnect: options.refetch?.onReconnect ?? true
 		};
 		this.initial = {
+			value: options.initial?.value ?? undefined,
 			cacheFirst: options.initial?.cacheFirst ?? true,
-			manualFetch: options.initial?.manualFetch ?? false,
-			alwaysFetch: options.initial?.alwaysFetch ?? false
+			alwaysFetch: options.initial?.alwaysFetch ?? true,
+			manualFetch: options.initial?.manualFetch ?? false
 		};
+
 		this.on = {
 			loading: options.on?.loading ?? (() => {}),
 			error: options.on?.error ?? (() => {}),
@@ -194,6 +202,10 @@ export class QueryClient<T, Args extends any[] = []> {
 		};
 
 		this.currentKey = getCacheKey(options.keys);
+
+		if (this.initial.value) {
+			this.d = this.initial.value;
+		}
 
 		if (this.initial.cacheFirst === true) {
 			this.pending = true;

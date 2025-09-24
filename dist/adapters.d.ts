@@ -1,8 +1,4 @@
-export type CacheAdapter = {
-    get: (key: string) => Promise<any | undefined>;
-    set: (key: string, value: any) => void;
-    del: (key: string) => void;
-};
+import type { CacheAdapter } from './lib';
 export declare class MemoryAdapter implements CacheAdapter {
     private cache;
     get(key: string): Promise<any | undefined>;

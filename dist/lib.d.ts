@@ -1,5 +1,9 @@
-import { CacheAdapter } from './adapters';
 export type NotUndefined<T> = T extends undefined ? never : T;
+export type CacheAdapter = {
+    get: (key: string) => Promise<any | undefined>;
+    set: (key: string, value: any) => void;
+    del: (key: string) => void;
+};
 export declare function getCacheKey(key: Array<string>): string;
 export interface QueryOptions<T, Args extends any[] = []> {
     keys: Array<string>;
@@ -17,6 +21,7 @@ export interface QueryOptions<T, Args extends any[] = []> {
         onReconnect?: boolean;
     };
     initial?: {
+        value?: T | undefined;
         cacheFirst?: boolean;
         manualFetch?: boolean;
         alwaysFetch?: boolean;

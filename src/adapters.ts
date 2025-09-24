@@ -1,10 +1,5 @@
 import { IDB } from 'keyval-db';
-
-export type CacheAdapter = {
-	get: (key: string) => Promise<any | undefined>;
-	set: (key: string, value: any) => void;
-	del: (key: string) => void;
-};
+import type { CacheAdapter } from './lib';
 
 export class MemoryAdapter implements CacheAdapter {
 	private cache = new Map<string, { value: any; expiry: number }>();
