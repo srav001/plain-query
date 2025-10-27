@@ -63,6 +63,7 @@ const client = new QueryClient({
 		onReconnect: true
 	},
 	initial: {
+		value: [],
 		cacheFirst: true,
 		manualFetch: false,
 		alwaysFetch: false
