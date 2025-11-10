@@ -1,6 +1,6 @@
 {
 	"name": "plain-query",
-	"version": "1.1.1",
+	"version": "1.1.2",
 	"description": "A basic, framework agnostic querying library.",
 	"files": [
 		"dist"
