@@ -308,7 +308,12 @@ export class QueryClient<T, Args extends any[] = []> {
 	}
 
 	private refetchData(...args: Args): Promise<T | undefined> {
-		const fn = () => this.fetchData('refetch', ...args);
+		const fn = async () => {
+			if (Date.now() - this.lastFetchedTime < 150) {
+				return undefined;
+			}
+			return await this.fetchData('refetch', ...args);
+		};
 		if (this.pending === true) {
 			return this.add_to_pending_q(fn);
 		}

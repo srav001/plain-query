@@ -36,9 +36,9 @@ function createQuery() {
 		const loading = shallowRef(options.initial?.manualFetch === true ? false : true);
 		let data: Ref<T | undefined>;
 		if (options.deepSignal === true) {
-			data = ref<T>();
+			data = ref(options.initial?.value) as Ref<T | undefined>;
 		} else {
-			data = shallowRef<T | undefined>(undefined);
+			data = shallowRef<T | undefined>(options.initial?.value);
 		}
 
 		queryOptions.on = {
