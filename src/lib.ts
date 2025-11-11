@@ -26,7 +26,7 @@ export interface QueryOptions<T, Args extends any[] = []> {
 		loading: (isLoading: boolean) => void;
 		error?: (error: Error) => void;
 		success: (data: T) => void;
-		onRequest?: (promise: Promise<T | undefined> | undefined) => void;
+		request?: (promise: Promise<T | undefined> | undefined) => void;
 	};
 
 	refetch?: {
@@ -182,12 +182,12 @@ export class QueryClient<T, Args extends any[] = []> {
 			}
 		})();
 
-		this.on.onRequest?.(fetchPromise);
+		this.on.request?.(fetchPromise);
 
 		try {
 			return await fetchPromise;
 		} finally {
-			this.on.onRequest?.(undefined);
+			this.on.request?.(undefined);
 		}
 	}
 
@@ -210,7 +210,7 @@ export class QueryClient<T, Args extends any[] = []> {
 			loading: options.on?.loading ?? (() => {}),
 			error: options.on?.error ?? (() => {}),
 			success: options.on?.success ?? (() => {}),
-			onRequest: options.on?.onRequest ?? (() => {})
+			request: options.on?.request ?? (() => {})
 		};
 
 		this.currentKey = getCacheKey(options.keys);

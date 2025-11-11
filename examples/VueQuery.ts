@@ -50,7 +50,7 @@ function createQuery() {
 			loading(val) {
 				loading.value = val;
 			},
-			onRequest(promise) {
+			request(promise) {
 				activeFetch.value = promise;
 			}
 		};
@@ -169,7 +169,7 @@ export function useStore<T, Args extends any[] = []>(options: StoreOptions<T, Ar
 		loading(val: boolean) {
 			loading.value = val;
 		},
-		onRequest(promise) {
+		request(promise) {
 			activeFetch.value = promise;
 		}
 	};
