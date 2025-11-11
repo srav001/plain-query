@@ -12,6 +12,7 @@ import {
 type QueryResult<T, U extends any[] = []> = Omit<QueryClient<T, U>, 'data' | 'loading'> & {
 	data: Ref<T | undefined>;
 	loading: ShallowRef<boolean>;
+	activeFetch: ShallowRef<Promise<T | undefined> | undefined>;
 };
 
 type QueryOptions<T, Args extends any[] = []> = Omit<QO<T, Args>, 'cacheAdapter' | 'on'> & {
@@ -34,6 +35,7 @@ function createQuery() {
 		queryOptions.cacheAdapter = storageAdapter;
 
 		const loading = shallowRef(options.initial?.manualFetch === true ? false : true);
+		const activeFetch = shallowRef<Promise<T | undefined> | undefined>(undefined);
 		let data: Ref<T | undefined>;
 		if (options.deepSignal === true) {
 			data = ref(options.initial?.value) as Ref<T | undefined>;
@@ -47,6 +49,9 @@ function createQuery() {
 			},
 			loading(val) {
 				loading.value = val;
+			},
+			onRequest(promise) {
+				activeFetch.value = promise;
 			}
 		};
 
@@ -55,6 +60,7 @@ function createQuery() {
 		return {
 			data,
 			loading,
+			activeFetch,
 			get error() {
 				return q.error;
 			},
@@ -136,7 +142,9 @@ type StoreOptions<T, Args extends any[]> = Omit<QueryOptions<T, Args>, 'fn'> &
 	};
 
 type StoreResult<T, Args extends any[]> = Omit<QueryResult<T, Args>, 'error' | 'updateKeys'> &
-	Omit<MutationResult<T, T>, 'state'>;
+	Omit<MutationResult<T, T>, 'state'> & {
+		error: ShallowRef<Error | null>;
+	};
 
 export function useStore<T, Args extends any[] = []>(options: StoreOptions<T, Args>): StoreResult<T, Args> {
 	let data: Ref<T | undefined>;
@@ -147,6 +155,7 @@ export function useStore<T, Args extends any[] = []>(options: StoreOptions<T, Ar
 	}
 
 	const loading = shallowRef(options.initial?.manualFetch === true ? false : true);
+	const activeFetch = shallowRef<Promise<T | undefined> | undefined>(undefined);
 	const error = shallowRef<Error | null>(null);
 
 	const queryOptions: QO<T, Args> = Object.assign({}, options as any);
@@ -159,6 +168,9 @@ export function useStore<T, Args extends any[] = []>(options: StoreOptions<T, Ar
 		},
 		loading(val: boolean) {
 			loading.value = val;
+		},
+		onRequest(promise) {
+			activeFetch.value = promise;
 		}
 	};
 
@@ -197,6 +209,7 @@ export function useStore<T, Args extends any[] = []>(options: StoreOptions<T, Ar
 		data,
 		error,
 		loading,
+		activeFetch,
 		fetch: q.fetch.bind(q),
 		mutate: m.mutate.bind(m),
 		refresh: q.refresh.bind(q)

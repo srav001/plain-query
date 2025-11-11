@@ -7,7 +7,7 @@ A framework-agnostic, lightweight query client library built in TypeScript. Plai
 Plain Query provides examples for popular frontend frameworks that can be copy pasted into your projects or can be used as a reference for your own implementation.
 
 - [React Example](https://github.com/srav001/plain-query/blob/main/examples/ReactQuery.ts)
-- [Vue Example](https://github.com/srav001/plain-query/blob/main/examples/VueQuery.ts)
+- [Vue Example](https://github.com/srav001/plain-query/blob/main/examples/VueQuery.ts) - Includes `activeFetch` ref for tracking active requests
 - [Svelte Example](https://github.com/srav001/plain-query/blob/main/examples/SvelteQuery.svelte.ts)
 
 ## Table of Contents
@@ -56,7 +56,12 @@ const client = new QueryClient({
 	on: {
 		loading: (isLoading) => console.log('Loading:', isLoading),
 		success: (data) => console.log('Data:', data),
-		error: (error) => console.error('Error:', error)
+		error: (error) => console.error('Error:', error),
+		onRequest: (promise) => {
+			// Called with the active fetch promise when fetch starts
+			// Called with undefined when fetch completes (success or error)
+			console.log('Active fetch:', promise);
+		}
 	},
 	refetch: {
 		onWindowFocus: true,
@@ -85,6 +90,37 @@ client.updateKeys(['users', 'list', '1']).then((data) => {
 console.log(client.data);
 console.log(client.loading);
 console.log(client.error);
+```
+
+#### Tracking Active Requests
+
+The `onRequest` callback provides access to the active fetch promise, allowing you to track ongoing requests and await them if needed:
+
+```typescript
+let activeFetchPromise: Promise<any> | undefined;
+
+const client = new QueryClient({
+	keys: ['users'],
+	fn: fetchUsers,
+	cacheAdapter: new MemoryAdapter(),
+	on: {
+		loading: (isLoading) => console.log('Loading:', isLoading),
+		success: (data) => console.log('Data:', data),
+		onRequest: (promise) => {
+			activeFetchPromise = promise;
+			if (promise) {
+				console.log('Fetch started');
+				promise.then(() => console.log('Fetch completed'));
+			}
+		}
+	}
+});
+
+// Wait for an active fetch to complete
+if (activeFetchPromise) {
+	await activeFetchPromise;
+	console.log('Request finished');
+}
 ```
 
 ### MutationClient

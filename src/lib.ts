@@ -26,6 +26,7 @@ export interface QueryOptions<T, Args extends any[] = []> {
 		loading: (isLoading: boolean) => void;
 		error?: (error: Error) => void;
 		success: (data: T) => void;
+		onRequest?: (promise: Promise<T | undefined> | undefined) => void;
 	};
 
 	refetch?: {
@@ -133,50 +134,60 @@ export class QueryClient<T, Args extends any[] = []> {
 			return;
 		}
 
-		try {
-			this.l = true;
-			this.pending = true;
-			this.on.loading(true);
+		const fetchPromise = (async () => {
+			try {
+				this.l = true;
+				this.pending = true;
+				this.on.loading(true);
 
-			if (this.fetchedOnce === true) {
-				if (type === 'refetch') {
-					if (
-						this.options.staleTime !== undefined &&
-						Date.now() - this.lastFetchedTime < this.options.staleTime * METRIC
-					) {
-						return;
-					}
-				} else if (type === 'normal') {
-					if (this.isQueued === true) {
-						return;
-					}
+				if (this.fetchedOnce === true) {
+					if (type === 'refetch') {
+						if (
+							this.options.staleTime !== undefined &&
+							Date.now() - this.lastFetchedTime < this.options.staleTime * METRIC
+						) {
+							return;
+						}
+					} else if (type === 'normal') {
+						if (this.isQueued === true) {
+							return;
+						}
 
-					if (await this.setFromCache()) {
-						return;
+						if (await this.setFromCache()) {
+							return;
+						}
 					}
+				} else if (type === 'refetch') {
+					return;
 				}
-			} else if (type === 'refetch') {
-				return;
+
+				this.lastArgs = args;
+				const fetchedData = await this.options.fn(...args);
+
+				this.onData(fetchedData);
+				this.options.cacheAdapter.set(this.currentKey, add_ttl_for_cache(fetchedData, this.options.cacheTime));
+
+				this.setupStaleTimer();
+
+				return this.d;
+			} catch (err) {
+				this.e = err instanceof Error ? err : new Error(String(err));
+				this.on.error?.(this.e);
+				return undefined;
+			} finally {
+				this.l = false;
+				this.on.loading(false);
+				this.setInitialFetch();
+				this.processQ();
 			}
+		})();
 
-			this.lastArgs = args;
-			const fetchedData = await this.options.fn(...args);
+		this.on.onRequest?.(fetchPromise);
 
-			this.onData(fetchedData);
-			this.options.cacheAdapter.set(this.currentKey, add_ttl_for_cache(fetchedData, this.options.cacheTime));
-
-			this.setupStaleTimer();
-
-			return this.d;
-		} catch (err) {
-			this.e = err instanceof Error ? err : new Error(String(err));
-			this.on.error?.(this.e);
-			return undefined;
+		try {
+			return await fetchPromise;
 		} finally {
-			this.l = false;
-			this.on.loading(false);
-			this.setInitialFetch();
-			this.processQ();
+			this.on.onRequest?.(undefined);
 		}
 	}
 
@@ -198,7 +209,8 @@ export class QueryClient<T, Args extends any[] = []> {
 		this.on = {
 			loading: options.on?.loading ?? (() => {}),
 			error: options.on?.error ?? (() => {}),
-			success: options.on?.success ?? (() => {})
+			success: options.on?.success ?? (() => {}),
+			onRequest: options.on?.onRequest ?? (() => {})
 		};
 
 		this.currentKey = getCacheKey(options.keys);
