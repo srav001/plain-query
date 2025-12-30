@@ -15,6 +15,10 @@ export class MemoryAdapter implements CacheAdapter {
 	del(key: string) {
 		this.cache.delete(key);
 	}
+
+	clear() {
+		this.cache.clear();
+	}
 }
 
 export class StorageAdapter implements CacheAdapter {
@@ -34,5 +38,9 @@ export class StorageAdapter implements CacheAdapter {
 
 	del(key: string) {
 		return this.#idb.del(key);
+	}
+
+	clear() {
+		return this.#idb.clearStore();
 	}
 }

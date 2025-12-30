@@ -6,6 +6,7 @@ export type CacheAdapter = {
 	get: (key: string) => Promise<any | undefined>;
 	set: (key: string, value: any) => void;
 	del: (key: string) => void;
+	clear: () => void;
 };
 
 export function getCacheKey(key: Array<string>): string {
