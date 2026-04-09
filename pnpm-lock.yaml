@@ -30,9 +30,6 @@ importers:
       svelte:
         specifier: ^5.38.0
         version: 5.39.5
-      typescript:
-        specifier: ^5.9.2
-        version: 5.9.2
 
 packages:
 
@@ -285,11 +282,6 @@ packages:
     resolution: {integrity: sha512-Pugqs6M0m7Lv1I7FtxN4aoyToKg1C4tu+/381vH35y8oENM/Ai7f7C4StcoK4/+BSw9ebcS8jRiVrORFKCALLw==}
     engines: {node: ^20.0.0 || >=22.0.0}
 
-  typescript@5.9.2:
-    resolution: {integrity: sha512-CWBzXQrc/qOkhidw1OzBTQuYRbfyxDXJMVJ1XNwUHGROVmuaeiEm3OslpZ1RV96d7SKKjZKrSJu3+t/xlw3R9A==}
-    engines: {node: '>=14.17'}
-    hasBin: true
-
   zimmerframe@1.1.4:
     resolution: {integrity: sha512-B58NGBEoc8Y9MWWCQGl/gq9xBCe4IiKM0a2x7GZdQKOW5Exr8S1W24J6OgM1njK8xCRGvAJIL/MxXHf6SkmQKQ==}
 
@@ -490,7 +482,5 @@ snapshots:
       zimmerframe: 1.1.4
 
   tinypool@2.1.0: {}
-
-  typescript@5.9.2: {}
 
   zimmerframe@1.1.4: {}

@@ -31,8 +31,7 @@
     "@vue/reactivity": "^3.5.13",
     "fake-indexeddb": "^6.2.5",
     "oxfmt": "0.43.0",
-    "svelte": "^5.38.0",
-    "typescript": "^5.9.2"
+    "svelte": "^5.38.0"
   },
   "peerDependencies": {
     "keyval-db": "^1.1.0"
