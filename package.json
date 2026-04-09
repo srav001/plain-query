@@ -1,8 +1,7 @@
 {
   "name": "plain-query",
-  "version": "1.1.4",
+  "version": "1.2.0",
   "description": "A basic, framework agnostic querying library.",
-  "type": "module",
   "homepage": "https://github.com/srav001/plain-query#readme",
   "bugs": {
     "url": "https://github.com/srav001/plain-query/issues"
@@ -16,6 +15,7 @@
   "files": [
     "dist"
   ],
+  "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -26,8 +26,8 @@
     "test": "node --experimental-strip-types --test test/**/*.test.ts"
   },
   "devDependencies": {
-    "@typescript/native-preview": "7.0.0-dev.20260406.1",
     "@types/react": "^19.1.2",
+    "@typescript/native-preview": "7.0.0-dev.20260406.1",
     "@vue/reactivity": "^3.5.13",
     "fake-indexeddb": "^6.2.5",
     "oxfmt": "0.43.0",
