@@ -1,37 +1,39 @@
 {
-	"name": "plain-query",
-	"version": "1.1.4",
-	"description": "A basic, framework agnostic querying library.",
-	"files": [
-		"dist"
-	],
-	"main": "./dist/index.js",
-	"types": "./dist/index.d.ts",
-	"scripts": {
-		"build": "npx tsc --build",
-		"check": "npx tsc --noEmit",
-		"pub": "pnpm build && npm publish --access public",
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/srav001/plain-query.git"
-	},
-	"author": "Sravan Suresh",
-	"license": "MIT",
-	"bugs": {
-		"url": "https://github.com/srav001/plain-query/issues"
-	},
-	"homepage": "https://github.com/srav001/plain-query#readme",
-	"devDependencies": {
-		"@types/react": "^19.1.2",
-		"@vue/reactivity": "^3.5.13",
-		"prettier": "^3.6.2",
-		"prettier-plugin-organize-imports": "^4.3.0",
-		"svelte": "^5.38.0",
-		"typescript": "^5.9.2"
-	},
-	"peerDependencies": {
-		"keyval-db": "^1.0.0"
-	}
+  "name": "plain-query",
+  "version": "1.2.0",
+  "description": "A basic, framework agnostic querying library.",
+  "homepage": "https://github.com/srav001/plain-query#readme",
+  "bugs": {
+    "url": "https://github.com/srav001/plain-query/issues"
+  },
+  "license": "MIT",
+  "author": "Sravan Suresh",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srav001/plain-query.git"
+  },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsgo --build",
+    "check": "tsgo --noEmit -p tsconfig.json",
+    "format": "oxfmt src/ examples/ test/",
+    "pub": "pnpm build && npm publish --access public",
+    "test": "node --experimental-strip-types --test test/**/*.test.ts"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@typescript/native-preview": "7.0.0-dev.20260406.1",
+    "@vue/reactivity": "^3.5.13",
+    "fake-indexeddb": "^6.2.5",
+    "oxfmt": "0.43.0",
+    "svelte": "^5.38.0"
+  },
+  "peerDependencies": {
+    "keyval-db": "^1.1.0"
+  }
 }
