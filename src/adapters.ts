@@ -1,46 +1,46 @@
-import { IDB } from 'keyval-db';
-import type { CacheAdapter } from './lib';
+import { IDB } from "keyval-db/dist/idb.js";
+import type { CacheAdapter } from "./lib";
 
 export class MemoryAdapter implements CacheAdapter {
-	private cache = new Map<string, { value: any; expiry: number }>();
+  private cache = new Map<string, { value: any; expiry: number }>();
 
-	async get(key: string): Promise<any | undefined> {
-		return this.cache.get(key);
-	}
+  async get(key: string): Promise<any | undefined> {
+    return this.cache.get(key);
+  }
 
-	set(key: string, value: any) {
-		this.cache.set(key, value);
-	}
+  set(key: string, value: any) {
+    this.cache.set(key, value);
+  }
 
-	del(key: string) {
-		this.cache.delete(key);
-	}
+  del(key: string) {
+    this.cache.delete(key);
+  }
 
-	clear() {
-		this.cache.clear();
-	}
+  clear() {
+    this.cache.clear();
+  }
 }
 
 export class StorageAdapter implements CacheAdapter {
-	#idb: IDB;
+  #idb: IDB;
 
-	constructor() {
-		this.#idb = new IDB('query', 'store');
-	}
+  constructor() {
+    this.#idb = new IDB("query", "store");
+  }
 
-	get(key: string): Promise<any | undefined> {
-		return this.#idb.get(key);
-	}
+  get(key: string): Promise<any | undefined> {
+    return this.#idb.get(key);
+  }
 
-	set(key: string, value: any) {
-		this.#idb.set(key, value);
-	}
+  set(key: string, value: any) {
+    this.#idb.set(key, value);
+  }
 
-	del(key: string) {
-		return this.#idb.del(key);
-	}
+  del(key: string) {
+    return this.#idb.del(key);
+  }
 
-	clear() {
-		return this.#idb.clearStore();
-	}
+  clear() {
+    return this.#idb.clearStore();
+  }
 }
