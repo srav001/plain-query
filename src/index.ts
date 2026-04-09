@@ -1,2 +1,2 @@
-export { MemoryAdapter, StorageAdapter } from "./adapters";
-export { MutationClient, QueryClient } from "./lib";
+export { MemoryAdapter, StorageAdapter } from './adapters';
+export { MutationClient, QueryClient } from './lib';
