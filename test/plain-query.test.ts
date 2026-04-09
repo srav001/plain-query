@@ -306,6 +306,35 @@ describe("QueryClient", () => {
     assert.equal(fetchCalls, 2);
   });
 
+  test("refresh fetches again immediately after an active request settles", async () => {
+    let fetchCalls = 0;
+    const activeFetch = createDeferred<string>();
+    const client = new QueryClient({
+      keys: ["refresh-immediate"],
+      cacheAdapter: new MemoryAdapter(),
+      staleTime: 0,
+      initial: { manualFetch: true },
+      on: {
+        loading: () => {},
+        success: () => {},
+      },
+      fn: async (_id: string, signal: AbortSignal) => {
+        assert.equal(signal.aborted, false);
+        fetchCalls += 1;
+        if (fetchCalls === 1) {
+          return activeFetch.promise;
+        }
+        return `call:${fetchCalls}`;
+      },
+    });
+
+    const firstFetch = client.fetch("1");
+    activeFetch.resolve("call:1");
+    assert.equal(await firstFetch, "call:1");
+    assert.equal(await client.refresh("1"), "call:2");
+    assert.equal(fetchCalls, 2);
+  });
+
   test("refresh aborts an in-flight request and replaces it with the queued call", async () => {
     const pending = new Map<string, ReturnType<typeof createDeferred<string>>>();
     const seenSignals = new Map<string, AbortSignal>();
@@ -347,6 +376,50 @@ describe("QueryClient", () => {
     assert.equal(await replacementFetch, "second-result");
     assert.equal(client.data, "second-result");
     assert.equal(errorEvents.length, 0);
+  });
+
+  test("request callback keeps the replacement fetch active during refresh replacement", async () => {
+    const pending = new Map<string, ReturnType<typeof createDeferred<string>>>();
+    const requests: Array<Promise<string | undefined> | undefined> = [];
+
+    const client = new QueryClient({
+      keys: ["request-replacement"],
+      cacheAdapter: new MemoryAdapter(),
+      staleTime: 0,
+      initial: { manualFetch: true },
+      on: {
+        loading: () => {},
+        success: () => {},
+        request: (promise) => requests.push(promise as Promise<string | undefined> | undefined),
+      },
+      fn: (id: string, signal: AbortSignal) => {
+        const deferred = createDeferred<string>();
+        pending.set(id, deferred);
+        signal.addEventListener(
+          "abort",
+          () => deferred.reject(new DOMException("Aborted", "AbortError")),
+          { once: true },
+        );
+        return deferred.promise;
+      },
+    });
+
+    const firstFetch = client.fetch("first");
+    await waitFor(() => requests.length === 1);
+
+    const replacementFetch = client.refresh("second");
+    await waitFor(() => requests.length >= 2);
+
+    const replacementPromise = requests[1];
+    assert.ok(replacementPromise instanceof Promise);
+    assert.notEqual(replacementPromise, requests[0]);
+    assert.equal(requests.at(-1), replacementPromise);
+
+    pending.get("second")?.resolve("second-result");
+
+    assert.equal(await firstFetch, undefined);
+    assert.equal(await replacementFetch, "second-result");
+    assert.equal(requests.at(-1), undefined);
   });
 
   test("reconnect listener triggers a refetch when browser globals exist", async () => {

@@ -98,6 +98,7 @@ export class QueryClient<T, Args extends any[] = []> {
   private initial: NotUndefined<QueryOptions<T, Args>["initial"]>;
   private refetch: NotUndefined<QueryOptions<T, Args>["refetch"]>;
   private on: NotUndefined<QueryOptions<T, Args>["on"]>;
+  private activeRequestPromise: Promise<T | undefined> | undefined;
   private q: Set<() => any> = new Set();
   private pending = false;
 
@@ -207,12 +208,16 @@ export class QueryClient<T, Args extends any[] = []> {
       }
     })();
 
+    this.activeRequestPromise = fetchPromise;
     this.on.request?.(fetchPromise);
 
     try {
       return await fetchPromise;
     } finally {
-      this.on.request?.(undefined);
+      if (this.activeRequestPromise === fetchPromise) {
+        this.activeRequestPromise = undefined;
+        this.on.request?.(undefined);
+      }
     }
   }
 
@@ -358,13 +363,7 @@ export class QueryClient<T, Args extends any[] = []> {
       this.abortController?.abort();
     }
 
-    const fn = async () => {
-      if (shouldReplaceActiveRequest === false && Date.now() - this.lastFetchedTime < 150) {
-        return undefined;
-      }
-
-      return await this.fetchData("refresh", ...args);
-    };
+    const fn = async () => await this.fetchData("refresh", ...args);
     if (this.pending === true) {
       return this.add_to_pending_q(fn);
     }
